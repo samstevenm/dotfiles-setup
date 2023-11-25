@@ -1,6 +1,6 @@
 # dotfiles-setup
 
-This repository contains a script to set up a development environment on a new machine. The script installs Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting, the GitHub CLI, and checks out a specified GitHub repository. It also creates a dotfiles directory and moves your .vimrc and .zshrc files to this directory.
+This repository contains a script to set up a development environment on a new machine. The script installs Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting, the GitHub CLI, NeoVim, Visual Studio Code, iTerm2, and checks out a specified GitHub repository. It also creates a dotfiles directory and moves your .vimrc, .zshrc, init.vim (NeoVim configuration), settings.json (VS Code configuration), and com.googlecode.iterm2.plist (iTerm2 configuration) files to this directory.
 
 ## Getting Started
 

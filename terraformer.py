@@ -20,7 +20,7 @@ def ask(prompt):
 def log_error(message):
     print(f"🚨 {message}", file=sys.stderr)
 
-# Function to backup dotfiles
+# Function to backup dotfiles and create symlinks
 def backup_dotfiles(repo_dir):
     dotfiles = glob.glob(os.path.expanduser('~/*'))
     dotfiles = [file for file in dotfiles if file.startswith('.') and not file.endswith(('.git', '.DS_Store'))]
@@ -30,6 +30,9 @@ def backup_dotfiles(repo_dir):
         if os.path.exists(src):
             shutil.copy2(src, dst)
             print(f"🔐 Backed up {file}")
+            os.remove(src)  # remove the original file
+            os.symlink(dst, src)  # create a symlink from the original location to the backed-up file
+            print(f"🔗 Created symlink for {file}")
 
 # Function to commit and push changes
 def commit_and_push(repo_dir):
@@ -93,27 +96,35 @@ parser = argparse.ArgumentParser(description='Backup dotfiles to a git repositor
 parser.add_argument('--sync', action='store_true', help='Backup dotfiles to the repository.')
 args = parser.parse_args()
 
+# Function to get the repository name
+def get_repo_name():
+    return os.path.basename(os.getcwd())
+
+# Function to check if the shell is Zsh
+def is_zsh():
+    return os.environ['SHELL'].endswith('zsh')
+
 # Main function
 def main():
     # Configuration
-    repo_name = ask("Enter your GitHub repository name: 📁")
-    dotfiles_dir = os.path.expanduser('~/dotfiles')
-    repo_dir = os.path.join(dotfiles_dir, repo_name)
+    repo_name = get_repo_name()
+    repo_dir = os.getcwd()  # get the current directory
 
     # Install Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, and zsh-syntax-highlighting
     install_homebrew()
-    install_zsh()
-    set_zsh_default()
+    if not is_zsh():
+        install_zsh()
+        set_zsh_default()
     install_oh_my_zsh()
     install_zsh_autosuggestions()
     install_zsh_syntax_highlighting()
     enable_zsh_plugins()
 
     # Backup dotfiles on subsequent runs
-    if args.sync:
+    if args.sync or not is_zsh():
         backup_dotfiles(repo_dir)
         commit_and_push(repo_dir)
-
+        print("🎉 Dotfiles backed up successfully!")
 # Run the main function
 if __name__ == "__main__":
     main()
