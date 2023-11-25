@@ -1,0 +1,6 @@
+vscode
+iterm2
+onyx
+python3
+pip
+nvim

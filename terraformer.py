@@ -8,6 +8,8 @@ import datetime
 import glob
 import socket
 import time
+import pathlib
+from typing import List
 
 # Function to log runs
 def log_run():
@@ -22,6 +24,19 @@ def log_run():
 def command_exists(command):
     return subprocess.call('type ' + command, shell=True, 
         stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+
+# Add this function to check if an application is installed
+def is_installed(app: str) -> bool:
+    return pathlib.Path(f'/Applications/{app}.app').exists() or command_exists(app)
+
+# Add this function to install a list of applications
+def install_apps(apps: List[str]):
+    for app in apps:
+        if not is_installed(app):
+            print(f"🔍 {app} is not installed. Installing...")
+            subprocess.call(f'brew install {app}', shell=True)
+
+
 
 # Function to ask for user input
 def ask(prompt):
@@ -104,9 +119,10 @@ def enable_zsh_plugins():
     with open(os.path.expanduser('~/.zshrc'), 'a') as file:
         file.write("\nplugins=(zsh-autosuggestions zsh-syntax-highlighting)\n")
 
-# Argument parsing
+# Modify the argument parsing to add a new flag
 parser = argparse.ArgumentParser(description='Backup dotfiles to a git repository.')
 parser.add_argument('--sync', action='store_true', help='Backup dotfiles to the repository.')
+parser.add_argument('--install', action='store_true', help='Install apps from requirements.txt.')
 args = parser.parse_args()
 
 # Function to get the repository name
@@ -136,11 +152,26 @@ def main():
     install_zsh_syntax_highlighting()
     enable_zsh_plugins()
 
+    # Install apps from requirements.txt
+    if args.install:
+        # Read the requirements.txt file
+        with open('requirements.txt', 'r') as file:
+            apps = [line.strip() for line in file]
+
+        # Install the apps
+        install_apps(apps)
+        print("📦 App install attempt complete!")
+
     # Backup dotfiles on subsequent runs
     if args.sync or not is_zsh():
         backup_dotfiles(repo_dir)
         commit_and_push(repo_dir)
         print("🎉 Dotfiles backed up successfully!")
+
+    # Commit the log file
+    commit_and_push(repo_dir)
+    print("🪵 Log file backed up successfully!")
+        
 
 # Run the main function
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 # dotfiles-setup
 
-This repository contains a script to set up a development environment on a new machine. The script installs Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting, the GitHub CLI, NeoVim, Visual Studio Code, iTerm2, and checks out a specified GitHub repository. It also creates a dotfiles directory and moves your .vimrc, .zshrc, init.vim (NeoVim configuration), settings.json (VS Code configuration), and com.googlecode.iterm2.plist (iTerm2 configuration) files to this directory.
+This repository contains a script to set up a development environment on a new machine. The script installs Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, zsh-syntax-highlighting, and backs up all dotfiles to a "dotfiles" folder within the repository. It also creates symbolic links from your home directory to these backed-up dotfiles. The script logs each run, including the date, time, hostname, and the output of uname -a, and commits the log file to the repository.
 
 ## Getting Started
 
@@ -8,33 +8,24 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The script is intended to be run on a Mac with a fresh installation. It uses Homebrew to install packages, so you'll need to have Homebrew installed on your machine.
+The script is intended to be run on a Mac. It uses Homebrew to install packages, so if Homebrew is not already installed, the script will install it.
 
 ### Installing
 
 1. Clone the repository:
-
-```bash
-git clone https://github.com/samstevenm/dotfiles-setup.git
-```
-
+`git clone https://github.com/samstevenm/dotfiles-setup.git`
 2. Navigate to the repository directory:
-
-```bash
-cd dotfiles-setup
-```
-
+`cd dotfiles-setup`
 3. Run the script:
-
-```bash
-bash first_run.sh
-```
-
-During the execution of the script, you'll be prompted to enter your GitHub repository name. This is the repository that the script will clone.
+`python3 terraformer.py`
 
 ## Usage
 
-The script is designed to be run once when setting up a new machine. It's not intended to be run multiple times.
+The script is designed to be run once when setting up a new machine. If you want to backup your dotfiles again, you can run the script with the --sync argument:
+
+`python3 terraformer.py --sync`
+
+The script logs each run and commits the log file to the repository, even if the --sync argument is not passed.
 
 ## Contributing
 
@@ -42,13 +33,12 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the MIT License - see the LICENSE.md file for details
 
 ## Acknowledgments
 
-* [Homebrew](https://brew.sh/)
-* [Zsh](https://www.zsh.org/)
-* [Oh My Zsh](https://ohmyz.sh/)
-* [zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions)
-* [zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting)
-* [GitHub CLI](https://cli.github.com/)
+- Homebrew
+- Zsh
+- Oh My Zsh
+- zsh-autosuggestions
+- zsh-syntax-highlighting
