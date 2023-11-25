@@ -26,7 +26,9 @@ def backup_dotfiles(repo_dir):
     dotfiles = [file for file in dotfiles if file.startswith('.') and not file.endswith(('.git', '.DS_Store'))]
     for file in dotfiles:
         src = os.path.expanduser('~/' + file)
-        dst = os.path.join(repo_dir, file)
+        dst_dir = os.path.join(repo_dir, 'dotfiles')
+        os.makedirs(dst_dir, exist_ok=True)  # create the dotfiles directory if it doesn't exist
+        dst = os.path.join(dst_dir, file)
         if os.path.exists(src):
             shutil.copy2(src, dst)
             print(f"🔐 Backed up {file}")
