@@ -50,15 +50,19 @@ def log_error(message):
 def backup_dotfiles(repo_dir):
     dotfiles = glob.glob(os.path.expanduser('~/*'))
     dotfiles = [file for file in dotfiles if file.startswith('.') and not file.endswith(('.git', '.DS_Store'))]
+    # Add the paths to your iTerm2, VSCode, and Neovim preferences
+    dotfiles.extend(['~/.iterm2', '~/.vscode', '~/.config/nvim'])
     for file in dotfiles:
         src = os.path.expanduser('~/' + file)
         dst_dir = os.path.join(repo_dir, 'dotfiles')
         os.makedirs(dst_dir, exist_ok=True)  # create the dotfiles directory if it doesn't exist
         dst = os.path.join(dst_dir, file)
         if os.path.exists(src):
-            shutil.copy2(src, dst)
+            shutil.copy2(src, dst)  # backup the existing file
             print(f"🔐 Backed up {file}")
-            os.remove(src)  # remove the original file
+        if os.path.exists(dst):
+            if os.path.exists(src):
+                os.remove(src)  # remove the original file
             os.symlink(dst, src)  # create a symlink from the original location to the backed-up file
             print(f"🔗 Created symlink for {file}")
 
