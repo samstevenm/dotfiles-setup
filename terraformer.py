@@ -6,6 +6,17 @@ import shutil
 import platform
 import datetime
 import glob
+import socket
+import time
+
+# Function to log runs
+def log_run():
+    with open('terraformer.log', 'a') as file:
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
+        hostname = socket.gethostname()
+        uname = os.uname()
+        file.write(f"Run on {timestamp} on {hostname} machine\n")
+        file.write(f"{uname}\n")
 
 # Function to check if a command exists
 def command_exists(command):
@@ -108,6 +119,9 @@ def is_zsh():
 
 # Main function
 def main():
+    # Log the run
+    log_run()
+
     # Configuration
     repo_name = get_repo_name()
     repo_dir = os.getcwd()  # get the current directory
@@ -127,6 +141,7 @@ def main():
         backup_dotfiles(repo_dir)
         commit_and_push(repo_dir)
         print("🎉 Dotfiles backed up successfully!")
+
 # Run the main function
 if __name__ == "__main__":
     main()
