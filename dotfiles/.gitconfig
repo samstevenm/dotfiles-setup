@@ -1,0 +1,7 @@
+[user]
+	email = sam@themyers.party
+	name = Sam Myers
+[init]
+	defaultBranch = main
+[push]
+	default = current

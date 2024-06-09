@@ -1,182 +1,168 @@
-import argparse
+# terraformer.py
+
 import os
 import subprocess
 import sys
+from datetime import datetime
 import shutil
-import platform
-import datetime
-import glob
-import socket
-import time
-import pathlib
-from typing import List
 
-# Function to log runs
-def log_run():
-    with open('terraformer.log', 'a') as file:
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
-        hostname = socket.gethostname()
-        uname = os.uname()
-        file.write(f"Run on {timestamp} on {hostname} machine\n")
-        file.write(f"{uname}\n")
-
-# Function to check if a command exists
-def command_exists(command):
-    return subprocess.call('type ' + command, shell=True, 
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
-
-# Add this function to check if an application is installed
-def is_installed(app: str) -> bool:
-    return pathlib.Path(f'/Applications/{app}.app').exists() or command_exists(app)
-
-# Add this function to install a list of applications
-def install_apps(apps: List[str]):
-    for app in apps:
-        if not is_installed(app):
-            print(f"🔍 {app} is not installed. Installing...")
-            subprocess.call(f'brew install {app}', shell=True)
-
-
-
-# Function to ask for user input
-def ask(prompt):
-    return input(prompt)
-
-# Function to log errors
-def log_error(message):
-    print(f"🚨 {message}", file=sys.stderr)
-
-# Function to backup dotfiles and create symlinks
-def backup_dotfiles(repo_dir):
-    dotfiles = glob.glob(os.path.expanduser('~/*'))
-    dotfiles = [file for file in dotfiles if file.startswith('.') and not file.endswith(('.git', '.DS_Store'))]
-    # Add the paths to your iTerm2, VSCode, and Neovim preferences
-    dotfiles.extend(['~/.iterm2', '~/.vscode', '~/.config/nvim'])
-    for file in dotfiles:
-        src = os.path.expanduser('~/' + file)
-        dst_dir = os.path.join(repo_dir, 'dotfiles')
-        os.makedirs(dst_dir, exist_ok=True)  # create the dotfiles directory if it doesn't exist
-        dst = os.path.join(dst_dir, file)
-        if os.path.exists(src):
-            shutil.copy2(src, dst)  # backup the existing file
-            print(f"🔐 Backed up {file}")
-        if os.path.exists(dst):
-            if os.path.exists(src):
-                os.remove(src)  # remove the original file
-            os.symlink(dst, src)  # create a symlink from the original location to the backed-up file
-            print(f"🔗 Created symlink for {file}")
-
-# Function to commit and push changes
-def commit_and_push(repo_dir):
-    os.chdir(repo_dir)
-    if subprocess.call('git add .', shell=True) != 0:
-        log_error("Failed to add files to git")
-        sys.exit(1)
-    if subprocess.call('git commit -m "Backup dotfiles"', shell=True) != 0:
-        log_error("Failed to commit changes")
-        sys.exit(1)
-    if subprocess.call('git push', shell=True) != 0:
-        log_error("Failed to push changes")
-        sys.exit(1)
-
-# Function to install Homebrew
 def install_homebrew():
-    if command_exists('brew'):
-        return
-    print("🍺 Homebrew is not installed. Installing...")
-    subprocess.call('/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"', shell=True)
+    """Install Homebrew if it is not installed."""
+    if subprocess.run(["which", "brew"], capture_output=True).returncode != 0:
+        print("Homebrew not found. Installing Homebrew...")
+        subprocess.run(
+            '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"',
+            shell=True,
+            check=True
+        )
+    else:
+        print("Homebrew already installed.")
 
-# Function to install Zsh
 def install_zsh():
-    if command_exists('zsh'):
-        return
-    print("🦖 Zsh is not installed. Installing...")
-    subprocess.call('brew install zsh', shell=True)
+    """Install zsh if it is not installed."""
+    if subprocess.run(["brew", "list", "zsh"], capture_output=True).returncode != 0:
+        print("zsh not found. Installing zsh...")
+        subprocess.run(["brew", "install", "zsh"], check=True)
+    else:
+        print("zsh already installed.")
 
-# Function to set Zsh as the default shell
-def set_zsh_default():
-    subprocess.call('chsh -s "$(which zsh)"', shell=True)
-
-# Function to install Oh My Zsh
 def install_oh_my_zsh():
-    if os.path.isdir(os.path.expanduser('~/.oh-my-zsh')):
-        return
-    print("🎩 Oh My Zsh is not installed. Installing...")
-    subprocess.call('sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"', shell=True)
+    """Install Oh My Zsh if it is not installed."""
+    if not os.path.exists(os.path.expanduser("~/.oh-my-zsh")):
+        print("Oh My Zsh not found. Installing Oh My Zsh...")
+        subprocess.run(
+            'sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"',
+            shell=True,
+            check=True
+        )
+    else:
+        print("Oh My Zsh already installed.")
 
-# Function to install zsh-autosuggestions
-def install_zsh_autosuggestions():
-    if os.path.isdir(os.path.expanduser('~/.oh-my-zsh/custom/plugins/zsh-autosuggestions')):
-        return
-    print("🔍 zsh-autosuggestions is not installed. Installing...")
-    subprocess.call('git clone https://github.com/zsh-users/zsh-autosuggestions ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions', shell=True)
+def install_zsh_plugins():
+    """Install zsh-autosuggestions and zsh-syntax-highlighting."""
+    zsh_custom = os.path.expanduser("~/.oh-my-zsh/custom")
 
-# Function to install zsh-syntax-highlighting
-def install_zsh_syntax_highlighting():
-    if os.path.isdir(os.path.expanduser('~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting')):
-        return
-    print("🌈 zsh-syntax-highlighting is not installed. Installing...")
-    subprocess.call('git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ~/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting', shell=True)
+    # zsh-autosuggestions
+    zsh_autosuggestions = os.path.join(zsh_custom, "plugins/zsh-autosuggestions")
+    if not os.path.exists(zsh_autosuggestions):
+        print("zsh-autosuggestions not found. Installing zsh-autosuggestions...")
+        subprocess.run(
+            ["git", "clone", "https://github.com/zsh-users/zsh-autosuggestions", zsh_autosuggestions],
+            check=True
+        )
+    else:
+        print("zsh-autosuggestions already installed.")
 
-# Function to enable zsh-autosuggestions and zsh-syntax-highlighting
-def enable_zsh_plugins():
-    with open(os.path.expanduser('~/.zshrc'), 'a') as file:
-        file.write("\nplugins=(zsh-autosuggestions zsh-syntax-highlighting)\n")
+    # zsh-syntax-highlighting
+    zsh_syntax_highlighting = os.path.join(zsh_custom, "plugins/zsh-syntax-highlighting")
+    if not os.path.exists(zsh_syntax_highlighting):
+        print("zsh-syntax-highlighting not found. Installing zsh-syntax-highlighting...")
+        subprocess.run(
+            ["git", "clone", "https://github.com/zsh-users/zsh-syntax-highlighting.git", zsh_syntax_highlighting],
+            check=True
+        )
+    else:
+        print("zsh-syntax-highlighting already installed.")
 
-# Modify the argument parsing to add a new flag
-parser = argparse.ArgumentParser(description='Backup dotfiles to a git repository.')
-parser.add_argument('--sync', action='store_true', help='Backup dotfiles to the repository.')
-parser.add_argument('--install', action='store_true', help='Install apps from requirements.txt.')
-args = parser.parse_args()
+def backup_dotfiles(dotfiles_directory):
+    """Backup existing dotfiles to a specified directory and create symlinks."""
+    home = os.path.expanduser("~")
+    dotfiles = [
+        ".zshrc", ".gitconfig", ".vimrc", ".tmux.conf"
+    ]
 
-# Function to get the repository name
-def get_repo_name():
-    return os.path.basename(os.getcwd())
+    if not os.path.exists(dotfiles_directory):
+        os.makedirs(dotfiles_directory)
 
-# Function to check if the shell is Zsh
-def is_zsh():
-    return os.environ['SHELL'].endswith('zsh')
+    for dotfile in dotfiles:
+        src = os.path.join(home, dotfile)
+        dst = os.path.join(dotfiles_directory, dotfile)
 
-# Main function
-def main():
-    # Log the run
-    log_run()
+        if os.path.exists(src):
+            print(f"Backing up {src} to {dst}")
+            if os.path.exists(dst):
+                os.remove(dst)
+            os.rename(src, dst)
+            os.symlink(dst, src)
 
-    # Configuration
-    repo_name = get_repo_name()
-    repo_dir = os.getcwd()  # get the current directory
+def backup_vscode_config(vscode_directory):
+    """Backup VSCode settings and extensions."""
+    vscode_user_dir = os.path.expanduser("~/Library/Application Support/Code/User")
+    vscode_settings = ["settings.json", "keybindings.json", "snippets"]
 
-    # Install Homebrew, Zsh, Oh My Zsh, zsh-autosuggestions, and zsh-syntax-highlighting
-    install_homebrew()
-    if not is_zsh():
+    if not os.path.exists(vscode_directory):
+        os.makedirs(vscode_directory)
+
+    for item in vscode_settings:
+        src = os.path.join(vscode_user_dir, item)
+        dst = os.path.join(vscode_directory, item)
+
+        if os.path.exists(src):
+            print(f"Backing up {src} to {dst}")
+            if os.path.exists(dst):
+                if os.path.isdir(dst):
+                    shutil.rmtree(dst)
+                else:
+                    os.remove(dst)
+            if os.path.isdir(src):
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+
+    # Backup VSCode extensions
+    extensions_list = os.path.join(vscode_directory, "extensions.txt")
+    if subprocess.run(["which", "code"], capture_output=True).returncode == 0:
+        subprocess.run(["code", "--list-extensions"], stdout=open(extensions_list, 'w'))
+    else:
+        print("VSCode CLI (code) not found. Please install it to backup extensions.")
+
+def log_run(logfile):
+    """Log the date, time, hostname, and uname -a to a log file."""
+    with open(logfile, 'a') as f:
+        f.write(f"{datetime.now()} - {os.uname().nodename} - {os.uname()}\n")
+
+def list_installed_apps(apps_file):
+    """List installed applications in the Applications folder."""
+    apps_dir = "/Applications"
+    installed_apps = [f for f in os.listdir(apps_dir) if os.path.isdir(os.path.join(apps_dir, f))]
+    with open(apps_file, 'w') as f:
+        for app in installed_apps:
+            f.write(f"{app}\n")
+
+def list_brew_packages(brew_file):
+    """List installed Homebrew packages."""
+    result = subprocess.run(["brew", "list"], capture_output=True, text=True)
+    installed_packages = result.stdout.splitlines()
+    with open(brew_file, 'w') as f:
+        for package in installed_packages:
+            f.write(f"{package}\n")
+
+def main(setup=False, sync=False):
+    dotfiles_directory = os.path.join(os.getcwd(), "dotfiles")
+    vscode_directory = os.path.join(dotfiles_directory, "vscode")
+    logfile = os.path.join(os.getcwd(), "log.txt")
+    apps_file = os.path.join(os.getcwd(), "installed_apps.txt")
+    brew_file = os.path.join(os.getcwd(), "brew_packages.txt")
+
+    if setup:
+        install_homebrew()
         install_zsh()
-        set_zsh_default()
-    install_oh_my_zsh()
-    install_zsh_autosuggestions()
-    install_zsh_syntax_highlighting()
-    enable_zsh_plugins()
+        install_oh_my_zsh()
+        install_zsh_plugins()
 
-    # Install apps from requirements.txt
-    if args.install:
-        # Read the requirements.txt file
-        with open('requirements.txt', 'r') as file:
-            apps = [line.strip() for line in file]
+    if sync or setup:
+        backup_dotfiles(dotfiles_directory)
+        backup_vscode_config(vscode_directory)
 
-        # Install the apps
-        install_apps(apps)
-        print("📦 App install attempt complete!")
+    log_run(logfile)
+    list_installed_apps(apps_file)
+    list_brew_packages(brew_file)
 
-    # Backup dotfiles on subsequent runs
-    if args.sync or not is_zsh():
-        backup_dotfiles(repo_dir)
-        commit_and_push(repo_dir)
-        print("🎉 Dotfiles backed up successfully!")
+    print("Setup complete. Please review the changes and commit your settings:")
+    print("git add .")
+    print('git commit -m "Update settings"')
 
-    # Commit the log file
-    commit_and_push(repo_dir)
-    print("🪵 Log file backed up successfully!")
-        
-
-# Run the main function
 if __name__ == "__main__":
-    main()
+    setup = "--setup" in sys.argv
+    sync = "--sync" in sys.argv
+    main(setup, sync)

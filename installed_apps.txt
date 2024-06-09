@@ -1,0 +1,84 @@
+LastPass.app
+iNet Network Scanner.app
+GoToMeeting.app
+Visual Studio Code.app
+Adblock Plus.app
+Parallels Toolbox.app
+VLC.app
+Beeper.app
+DB Browser for SQLite.app
+UniFi.app
+DiffusionBee.app
+LuLu.app
+Hewlett-Packard
+Reor.app
+TeamViewer.app
+1Password.app
+Chrome DevTools App.app
+OpenVPN Connect
+Bisq.app
+HP
+DotEditor.app
+Mattermost.app
+Microsoft Defender Shim.app
+Google Chrome.app
+Scratch 3.app
+TestFlight.app
+Parallels Desktop.app
+OnyX.app
+QCAD.app
+Microsoft Remote Desktop.app
+OneDrive.app
+Cyberduck.app
+SwiftBar.app
+AeroSpace.app
+Electrum.app
+iMovie.app
+LogMeIn
+BitPay.app
+System Surveyor 2.0.app
+Microsoft Word.app
+HP Easy Scan.app
+Cisco
+Docker.app
+FlashPrint 5.app
+Obsidian.app
+OpenVPN Connect.app
+Safari.app
+Microsoft Excel.app
+Utilities
+ChatGPT.app
+Microsoft Outlook.app
+RecurseChat.app
+RustDesk.app
+Crestron Home.app
+Wireshark.app
+DisplayLink Manager.app
+1Password for Safari.app
+KeepKey Desktop.app
+Super Agent.app
+Enchanted.app
+OneDrive.localized
+Microsoft To Do.app
+qFlipper.app
+Microsoft Edge.app
+Microsoft OneNote.app
+LogMeIn-Rescue.app
+MySQLWorkbench.app
+DisplayLink Software Uninstaller.app
+Ledger Live.app
+Crestron
+iTerm.app
+Rewind.app
+Developer.app
+quarto
+OBS.app
+Microsoft PowerPoint.app
+Microsoft Teams.app
+Tailscale.app
+LlamaChat.app
+Ollama.app
+Ice.app
+Bisq 2.app
+Opera.app
+Parallels Access.app
