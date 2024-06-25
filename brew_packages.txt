@@ -146,6 +146,7 @@ pycparser
 python-cryptography
 python-packaging
 python-setuptools
+python-tk@3.12
 python@3.11
 python@3.12
 rav1e

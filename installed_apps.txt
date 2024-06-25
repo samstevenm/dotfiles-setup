@@ -7,6 +7,7 @@ Parallels Toolbox.app
 VLC.app
 Beeper.app
 DB Browser for SQLite.app
+Lutron Vive.app
 UniFi.app
 DiffusionBee.app
 LuLu.app
@@ -58,7 +59,6 @@ DisplayLink Manager.app
 KeepKey Desktop.app
 Super Agent.app
 Enchanted.app
-OneDrive.localized
 Microsoft To Do.app
 qFlipper.app
 Microsoft Edge.app
